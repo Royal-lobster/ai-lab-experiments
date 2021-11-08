@@ -1,111 +1,103 @@
-#Implementation of Two Player Tic-Tac-Toe game in Python.
+#This function is used to draw the board's current state every time the user turn arrives. 
+def ConstBoard(board):
+    print("Current State Of Board : \n\n");
+    for i in range (0,9):
+        if((i>0) and (i%3)==0):
+            print("\n");
+        if(board[i]==0):
+            print("- ",end=" ");
+        if (board[i]==1):
+            print("O ",end=" ");
+        if(board[i]==-1):    
+            print("X ",end=" ");
+    print("\n\n");
 
-''' We will make the board using dictionary 
-    in which keys will be the location(i.e : top-left,mid-right,etc.)
-    and initialliy it's values will be empty space and then after every move 
-    we will change the value according to player's choice of move. '''
+#This function takes the user move as input and make the required changes on the board.
+def User1Turn(board):
+    pos=input("Enter X's position from [1...9]: ");
+    pos=int(pos);
+    if(board[pos-1]!=0):
+        print("Wrong Move!!!");
+        exit(0) ;
+    board[pos-1]=-1;
 
-theBoard = {'7': ' ' , '8': ' ' , '9': ' ' ,
-            '4': ' ' , '5': ' ' , '6': ' ' ,
-            '1': ' ' , '2': ' ' , '3': ' ' }
+def User2Turn(board):
+    pos=input("Enter O's position from [1...9]: ");
+    pos=int(pos);
+    if(board[pos-1]!=0):
+        print("Wrong Move!!!");
+        exit(0);
+    board[pos-1]=1;
 
-board_keys = []
+#MinMax function.
+def minimax(board,player):
+    x=analyzeboard(board);
+    if(x!=0):
+        return (x*player);
+    pos=-1;
+    value=-2;
+    for i in range(0,9):
+        if(board[i]==0):
+            board[i]=player;
+            score=-minimax(board,(player*-1));
+            if(score>value):
+                value=score;
+                pos=i;
+            board[i]=0;
 
-for key in theBoard:
-    board_keys.append(key)
-
-''' We will have to print the updated board after every move in the game and 
-    thus we will make a function in which we'll define the printBoard function
-    so that we can easily print the board everytime by calling this function. '''
-
-def printBoard(board):
-    print(board['7'] + '|' + board['8'] + '|' + board['9'])
-    print('-+-+-')
-    print(board['4'] + '|' + board['5'] + '|' + board['6'])
-    print('-+-+-')
-    print(board['1'] + '|' + board['2'] + '|' + board['3'])
-
-# Now we'll write the main function which has all the gameplay functionality.
-def game():
-
-    turn = 'X'
-    count = 0
-
-
-    for i in range(10):
-        printBoard(theBoard)
-        print("It's your turn," + turn + ".Move to which place?")
-
-        move = input()        
-
-        if theBoard[move] == ' ':
-            theBoard[move] = turn
-            count += 1
-        else:
-            print("That place is already filled.\nMove to which place?")
-            continue
-
-        # Now we will check if player X or O has won,for every move after 5 moves. 
-        if count >= 5:
-            if theBoard['7'] == theBoard['8'] == theBoard['9'] != ' ': # across the top
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")                
-                break
-            elif theBoard['4'] == theBoard['5'] == theBoard['6'] != ' ': # across the middle
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break
-            elif theBoard['1'] == theBoard['2'] == theBoard['3'] != ' ': # across the bottom
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break
-            elif theBoard['1'] == theBoard['4'] == theBoard['7'] != ' ': # down the left side
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break
-            elif theBoard['2'] == theBoard['5'] == theBoard['8'] != ' ': # down the middle
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break
-            elif theBoard['3'] == theBoard['6'] == theBoard['9'] != ' ': # down the right side
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break 
-            elif theBoard['7'] == theBoard['5'] == theBoard['3'] != ' ': # diagonal
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break
-            elif theBoard['1'] == theBoard['5'] == theBoard['9'] != ' ': # diagonal
-                printBoard(theBoard)
-                print("\nGame Over.\n")                
-                print(" **** " +turn + " won. ****")
-                break 
-
-        # If neither X nor O wins and the board is full, we'll declare the result as 'tie'.
-        if count == 9:
-            print("\nGame Over.\n")                
-            print("It's a Tie!!")
-
-        # Now we have to change the player after every move.
-        if turn =='X':
-            turn = 'O'
-        else:
-            turn = 'X'        
+    if(pos==-1):
+        return 0;
+    return value;
     
-    # Now we will ask if player wants to restart the game or not.
-    restart = input("Do want to play Again?(y/n)")
-    if restart == "y" or restart == "Y":  
-        for key in board_keys:
-            theBoard[key] = " "
+#This function makes the computer's move using minmax algorithm.
+def CompTurn(board):
+    pos=-1;
+    value=-2;
+    for i in range(0,9):
+        if(board[i]==0):
+            board[i]=1;
+            score=-minimax(board, -1);
+            board[i]=0;
+            if(score>value):
+                value=score;
+                pos=i;
+ 
+    board[pos]=1;
 
-        game()
+
+#This function is used to analyze a game.
+def analyzeboard(board):
+    cb=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+    for i in range(0,8):
+        if(board[cb[i][0]] != 0 and
+           board[cb[i][0]] == board[cb[i][1]] and
+           board[cb[i][0]] == board[cb[i][2]]):
+            return board[cb[i][2]];
+    return 0;
 
 if __name__ == "__main__":
-    game()
+    board=[0,0,0,0,0,0,0,0,0];
+    print("Computer : O Vs. You : X");
+    player= input("Enter to play 1(st) or 2(nd) :");
+    player = int(player);
+    for i in range (0,9):
+        if(analyzeboard(board)!=0):
+            break;
+        if((i+player)%2==0):
+            CompTurn(board);
+        else:
+            ConstBoard(board);
+            User1Turn(board);
+
+    x=analyzeboard(board);
+    if(x==0):
+         ConstBoard(board);
+         print("Draw!!!")
+    if(x==-1):
+         ConstBoard(board);
+         print("X Wins!!! Y Loose !!!")
+    if(x==1):
+         ConstBoard(board);
+         print("X Loose!!! O Wins !!!!")
+       
