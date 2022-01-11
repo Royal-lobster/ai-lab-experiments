@@ -1,138 +1,120 @@
-import numpy as np
-
-
 class Node:
-	def __init__(self, state, parent, action):
-		self.state = state
-		self.parent = parent
-		self.action = action
+    def __init__(self,data,level,fval):
+        """ Initialize the node with the data, level of the node and the calculated fvalue """
+        self.data = data
+        self.level = level
+        self.fval = fval
 
+    def generate_child(self):
+        """ Generate child nodes from the given node by moving the blank space
+            either in the four directions {up,down,left,right} """
+        x,y = self.find(self.data,'_')
+        """ val_list contains position values for moving the blank space in either of
+            the 4 directions [up,down,left,right] respectively. """
+        val_list = [[x,y-1],[x,y+1],[x-1,y],[x+1,y]]
+        children = []
+        for i in val_list:
+            child = self.shuffle(self.data,x,y,i[0],i[1])
+            if child is not None:
+                child_node = Node(child,self.level+1,0)
+                children.append(child_node)
+        return children
+        
+    def shuffle(self,puz,x1,y1,x2,y2):
+        """ Move the blank space in the given direction and if the position value are out
+            of limits the return None """
+        if x2 >= 0 and x2 < len(self.data) and y2 >= 0 and y2 < len(self.data):
+            temp_puz = []
+            temp_puz = self.copy(puz)
+            temp = temp_puz[x2][y2]
+            temp_puz[x2][y2] = temp_puz[x1][y1]
+            temp_puz[x1][y1] = temp
+            return temp_puz
+        else:
+            return None
+            
 
-class StackFrontier:
-	def __init__(self):
-		self.frontier = []
-
-	def add(self, node):
-		self.frontier.append(node)
-
-	def contains_state(self, state):
-		return any((node.state[0] == state[0]).all() for node in self.frontier)
-	
-	def empty(self):
-		return len(self.frontier) == 0
-	
-	def remove(self):
-		if self.empty():
-			raise Exception("Empty Frontier")
-		else:
-			node = self.frontier[-1]
-			self.frontier = self.frontier[:-1]
-			return node
-
-
-class QueueFrontier(StackFrontier):
-	def remove(self):
-		if self.empty():
-			raise Exception("Empty Frontier")
-		else:
-			node = self.frontier[0]
-			self.frontier = self.frontier[1:]
-			return node
+    def copy(self,root):
+        """ Copy function to create a similar matrix of the given node"""
+        temp = []
+        for i in root:
+            t = []
+            for j in i:
+                t.append(j)
+            temp.append(t)
+        return temp    
+            
+    def find(self,puz,x):
+        """ Specifically used to find the position of the blank space """
+        for i in range(0,len(self.data)):
+            for j in range(0,len(self.data)):
+                if puz[i][j] == x:
+                    return i,j
 
 
 class Puzzle:
-	def __init__(self, start, startIndex, goal, goalIndex):
-		self.start = [start, startIndex]
-		self.goal = [goal, goalIndex] 
-		self.solution = None
+    def __init__(self,size):
+        """ Initialize the puzzle size by the specified size,open and closed lists to empty """
+        self.n = size
+        self.open = []
+        self.closed = []
 
-	def neighbors(self, state):
-		mat, (row, col) = state
-		results = []
-		
-		if row > 0:
-			mat1 = np.copy(mat)
-			mat1[row][col] = mat1[row - 1][col]
-			mat1[row - 1][col] = 0
-			results.append(('up', [mat1, (row - 1, col)]))
-		if col > 0:
-			mat1 = np.copy(mat)
-			mat1[row][col] = mat1[row][col - 1]
-			mat1[row][col - 1] = 0
-			results.append(('left', [mat1, (row, col - 1)]))
-		if row < 2:
-			mat1 = np.copy(mat)
-			mat1[row][col] = mat1[row + 1][col]
-			mat1[row + 1][col] = 0
-			results.append(('down', [mat1, (row + 1, col)]))
-		if col < 2:
-			mat1 = np.copy(mat)
-			mat1[row][col] = mat1[row][col + 1]
-			mat1[row][col + 1] = 0
-			results.append(('right', [mat1, (row, col + 1)]))
+    def accept(self):
+        """ Accepts the puzzle from the user """
+        puz = []
+        for i in range(0,self.n):
+            temp = input().split(" ")
+            puz.append(temp)
+        return puz
 
-		return results
+    def f(self,start,goal):
+        """ Heuristic Function to calculate hueristic value f(x) = h(x) + g(x) """
+        return self.h(start.data,goal)+start.level
 
-	def print(self):
-		solution = self.solution if self.solution is not None else None
-		print("Start State:\n", self.start[0], "\n")
-		print("Goal State:\n",  self.goal[0], "\n")
-		print("\nStates Explored: ", self.num_explored, "\n")
-		print("Solution:\n ")
-		for action, cell in zip(solution[0], solution[1]):
-			print("action: ", action, "\n", cell[0], "\n")
-		print("Goal Reached!!")
+    def h(self,start,goal):
+        """ Calculates the different between the given puzzles """
+        temp = 0
+        for i in range(0,self.n):
+            for j in range(0,self.n):
+                if start[i][j] != goal[i][j] and start[i][j] != '_':
+                    temp += 1
+        return temp
+        
 
-	def does_not_contain_state(self, state):
-		for st in self.explored:
-			if (st[0] == state[0]).all():
-				return False
-		return True
-	
-	def solve(self):
-		self.num_explored = 0
+    def process(self):
+        """ Accept Start and Goal Puzzle state"""
+        print("Enter the start state matrix \n")
+        start = self.accept()
+        print("Enter the goal state matrix \n")        
+        goal = self.accept()
 
-		start = Node(state=self.start, parent=None, action=None)
-		frontier = QueueFrontier()
-		frontier.add(start)
+        start = Node(start,0,0)
+        start.fval = self.f(start,goal)
+        """ Put the start node in the open list"""
+        self.open.append(start)
+        print("\n\n")
+        while True:
+            cur = self.open[0]
+            print("")
+            print("  | ")
+            print("  | ")
+            print(" \\\'/ \n")
+            for i in cur.data:
+                for j in i:
+                    print(j,end=" ")
+                print("")
+            """ If the difference between current and goal node is 0 we have reached the goal node"""
+            if(self.h(cur.data,goal) == 0):
+                break
+            for i in cur.generate_child():
+                i.fval = self.f(i,goal)
+                self.open.append(i)
+            self.closed.append(cur)
+            del self.open[0]
 
-		self.explored = [] 
-
-		while True:
-			if frontier.empty():
-				raise Exception("No solution")
-
-			node = frontier.remove()
-			self.num_explored += 1
-
-			if (node.state[0] == self.goal[0]).all():
-				actions = []
-				cells = []
-				while node.parent is not None:
-					actions.append(node.action)
-					cells.append(node.state)
-					node = node.parent
-				actions.reverse()
-				cells.reverse()
-				self.solution = (actions,  cells)
-				return
-
-			self.explored.append(node.state)
-
-			for action, state in self.neighbors(node.state):
-				if not frontier.contains_state(state) and self.does_not_contain_state(state):
-					child = Node(state=state, parent=node, action=action)
-					frontier.add(child)
+            """ sort the opne list based on f value """
+            self.open.sort(key = lambda x:x.fval,reverse=False)
 
 
-start = np.array([[2, 8, 1], [0, 4, 3], [7, 6, 5]])
-goal = np.array([[1, 2, 3], [8, 0, 4], [7, 6, 5]])
-
-
-startIndex = (1, 1)
-goalIndex = (1, 0)
-
-
-p = Puzzle(start, startIndex, goal, goalIndex)
-p.solve()
-p.print()
+puz = Puzzle(3)
+puz.process()
