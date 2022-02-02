@@ -9,13 +9,13 @@
 # 8. Pour all water from 4 gallon jug to the 3 gallon jug
 
 # SOLUTION STEPS =>
-# 2, 9, 2, 7, 5, 9
+# 2, 7, 2, 5, 3
 
 
 if __name__ == "__main__":
     J4,J3 = 0,0
     print("initial state of the water jugs: ", "J4:",J4,"J3:",J3)
-    while(J4 != 2):
+    while(J4 != 2 or J3 != 2):
         rule = int(input("enter rule number: "))
         if(rule == 1):
             # Fill the 4 gallon jug completely
