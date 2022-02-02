@@ -13,7 +13,7 @@ def ConstBoard(board):
     print("\n\n");
 
 #This function takes the user move as input and make the required changes on the board.
-def User1Turn(board):
+def UserTurn(board):
     pos=input("Enter X's position from [1...9]: ");
     pos=int(pos);
     if(board[pos-1]!=0):
@@ -21,38 +21,39 @@ def User1Turn(board):
         exit(0) ;
     board[pos-1]=-1;
 
-def User2Turn(board):
-    pos=input("Enter O's position from [1...9]: ");
-    pos=int(pos);
-    if(board[pos-1]!=0):
-        print("Wrong Move!!!");
-        exit(0);
-    board[pos-1]=1;
-
 #MinMax function.
 def minimax(board,player):
-    x=analyzeboard(board);
-    if(x!=0):
-        return (x*player);
-    pos=-1;
-    value=-2;
+
+    # Check for terminal states (base case)
+    winner = check_for_winner(board);
+    if(winner!=0): return (winner*player);
+
+    # Initialize best value
+    value=-2; # can be 1 or -1
+
+    # Check for all possible moves and update best value and position
     for i in range(0,9):
         if(board[i]==0):
+            # Make the move to current position 
             board[i]=player;
+
+            # Call minimax recursively for alternate player
             score=-minimax(board,(player*-1));
-            if(score>value):
-                value=score;
-                pos=i;
+
+            # Update best value 
+            if(score>value): value=score;
+
+            # Reset the current cell
             board[i]=0;
 
-    if(pos==-1):
-        return 0;
+    # Return best value 
+    if(value==-2): return 0;
     return value;
     
 #This function makes the computer's move using minmax algorithm.
 def CompTurn(board):
     pos=-1;
-    value=-2;
+    value=-2; # can be 1 or -1
     for i in range(0,9):
         if(board[i]==0):
             board[i]=1;
@@ -61,12 +62,11 @@ def CompTurn(board):
             if(score>value):
                 value=score;
                 pos=i;
- 
     board[pos]=1;
 
 
 #This function is used to analyze a game.
-def analyzeboard(board):
+def check_for_winner(board):
     cb=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 
     for i in range(0,8):
@@ -77,27 +77,23 @@ def analyzeboard(board):
     return 0;
 
 if __name__ == "__main__":
+    #Initializing the board.
     board=[0,0,0,0,0,0,0,0,0];
+
+    # This loop is used to play the game.
     print("Computer : O Vs. You : X");
-    player= input("Enter to play 1(st) or 2(nd) :");
-    player = int(player);
     for i in range (0,9):
-        if(analyzeboard(board)!=0):
+        if(check_for_winner(board)!=0):
             break;
-        if((i+player)%2==0):
+        if(i%2==0):
             CompTurn(board);
         else:
             ConstBoard(board);
-            User1Turn(board);
+            UserTurn(board);
 
-    x=analyzeboard(board);
-    if(x==0):
-         ConstBoard(board);
-         print("Draw!!!")
-    if(x==-1):
-         ConstBoard(board);
-         print("X Wins!!! Y Loose !!!")
-    if(x==1):
-         ConstBoard(board);
-         print("X Loose!!! O Wins !!!!")
-       
+    # output the result
+    winner = check_for_winner(board);
+    ConstBoard(board);
+    if(winner==0): print("Draw!!!")
+    if(winner==-1): print("You Win !!!")
+    if(winner==1): print("Computer Wins !!!!")
