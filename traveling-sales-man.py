@@ -1,40 +1,43 @@
-from sys import maxsize
 from itertools import permutations
-V = 4
-def travellingSalesmanProblem(graph, s):
+
+def travellingSalesmanProblem(graph, source_city, no_of_cities):
  
     # store all vertex apart from source vertex
-    vertex = []
-    for i in range(V):
-        if i != s:
-            vertex.append(i)
+    vertices = []
+    for i in range(no_of_cities):
+        if i != source_city:
+            vertices.append(i)
  
-    # store minimum weight Hamiltonian Cycle
-    min_path = maxsize
-    next_permutation=permutations(vertex)
-    for i in next_permutation:
+    # store minimum path length and order
+    min_path_length = 999
+    min_path_order = []
+
+    for path_order in permutations(vertices):
  
         # store current Path weight(cost)
-        current_pathweight = 0
+        current_path_length = 0
  
         # compute current path weight
-        k = s
-        for j in i:
-            current_pathweight += graph[k][j]
-            k = j
-        current_pathweight += graph[k][s]
+        curr_city = source_city
+        for next_city in path_order:
+            current_path_length += graph[curr_city][next_city]
+            curr_city = next_city
+        
+        # add the path back to source city
+        current_path_length += graph[curr_city][source_city]
  
         # update minimum
-        min_path = min(min_path, current_pathweight)
+        if current_path_length < min_path_length:
+            min_path_length = current_path_length
+            min_path_order = path_order
+
          
-    return min_path
+    return min_path_length, min_path_order
  
  
-# Driver Code
 if __name__ == "__main__":
- 
-    # matrix representation of graph
     graph = [[0, 10, 15, 20], [10, 0, 35, 25],
             [15, 35, 0, 30], [20, 25, 30, 0]]
-    s = 0
-    print(travellingSalesmanProblem(graph, s))
+    dis, order = travellingSalesmanProblem(graph, 0, len(graph))
+    print("Distance : ", dis)
+    print("Order: 0 ->", order, "-> 0")
