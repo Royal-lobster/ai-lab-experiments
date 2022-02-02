@@ -8,34 +8,34 @@ class Node():
         A, B = self.state[0], self.state[1]
         ACap, BCap = self.capacity[0], self.capacity[1]
 
-        children = []
+        children = set()
         # fill all A jug 
-        children.append((ACap, B))
+        children.add((ACap, B))
 
         # fill all B jug
-        children.append((A, BCap))
+        children.add((A, BCap))
 
         # empty jug A
-        children.append((0, B))
+        children.add((0, B))
 
         # empty jug B
-        children.append((A, 0))
+        children.add((A, 0))
 
         # fill jug A by emptying jug B
         if A + B <= ACap:
-            children.append((A+B, 0))
+            children.add((A+B, 0))
         
         # fill jug B by emptying jug A
         if A + B <= BCap:
-            children.append((0, A+B))
+            children.add((0, A+B))
         
         # Pour some water from B jug to fill A jug
         if B-(ACap-A) <= BCap and B-(ACap-A) >= 0:
-            children.append((A, B-(ACap-A)))
+            children.add((ACap, B-(ACap-A)))
 
         # Pour some water from A jug to fill B jug
         if A-(BCap-B) <= ACap and A-(BCap-B) >= 0:
-            children.append((A-(BCap-B), B))
+            children.add((A-(BCap-B), BCap))
 
         return children
 
@@ -60,13 +60,13 @@ class waterJugDFS():
             cur = self.open.popleft()
             self.path.append(cur.state)
 
-            # if goal state found and print the state and break the loop
+           # if goal state found and print the state and break the loop
             if cur.state[0] == self.target or cur.state[1] == self.target:
-                if (cur.state[0] == target):
+                if (cur.state[0] == self.target):
                     if (cur.state[1] != 0): 
                         self.path.append([cur.state[0], 0])
-                    elif (cur.state[0] != 0): 
-                        self.path.append([0, cur.state[1]])
+                elif (cur.state[0] != 0): 
+                    self.path.append([0, cur.state[1]])
                 for i in range(len(self.path)):
                     print("(", self.path[i][0], ",", self.path[i][1], ")")
                 break
