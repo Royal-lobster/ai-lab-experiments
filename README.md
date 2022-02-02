@@ -6,6 +6,6 @@ Syllabus Progress
 - [x] Tic Tac Toe
 - [x] Traveling Sales Man
 - [x] A Star
-- [ ] Hill Climbing
+- [x] Hill Climbing
 - [ ] Water Jub BFS
 - [ ] Water Jug DFS 
