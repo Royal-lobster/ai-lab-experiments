@@ -1,105 +1,85 @@
 from collections import deque
- 
-def BFS(a, b, target):
-     
-    # Map is used to store the states, every
-    # state is hashed to binary value to
-    # indicate either that state is visited
-    # before or not
-    m = {}
-    isSolvable = False
-    path = []
-     
-    # Queue to maintain states
-    q = deque()
-     
-    # Initialing with initial state
-    q.append((0, 0))
- 
-    while (len(q) > 0):
-         
-        # Current state
-        u = q.popleft()
- 
-        #q.pop() #pop off used state
- 
-        # If this state is already visited
-        if ((u[0], u[1]) in m):
-            continue
- 
-        # Doesn't met jug constraints
-        if ((u[0] > a or u[1] > b or
-             u[0] < 0 or u[1] < 0)):
-            continue
- 
-        # Filling the vector for constructing
-        # the solution path
-        path.append([u[0], u[1]])
- 
-        # Marking current state as visited
-        m[(u[0], u[1])] = 1
- 
-        # If we reach solution state, put ans=1
-        if (u[0] == target or u[1] == target):
-            isSolvable = True
-             
-            if (u[0] == target):
-                if (u[1] != 0):
-                     
-                    # Fill final state
-                    path.append([u[0], 0])
-            else:
-                if (u[0] != 0):
- 
-                    # Fill final state
-                    path.append([0, u[1]])
- 
-            # Print the solution path
-            sz = len(path)
-            for i in range(sz):
-                print("(", path[i][0], ",",
-                           path[i][1], ")")
-            break
- 
-        # If we have not reached final state
-        # then, start developing intermediate
-        # states to reach solution state
-        q.append([u[0], b]) # Fill Jug2
-        q.append([a, u[1]]) # Fill Jug1
- 
-        for ap in range(max(a, b) + 1):
- 
-            # Pour amount ap from Jug2 to Jug1
-            c = u[0] + ap
-            d = u[1] - ap
- 
-            # Check if this state is possible or not
-            if (c == a or (d == 0 and d >= 0)):
-                q.append([c, d])
- 
-            # Pour amount ap from Jug 1 to Jug2
-            c = u[0] - ap
-            d = u[1] + ap
- 
-            # Check if this state is possible or not
-            if ((c == 0 and c >= 0) or d == b):
-                q.append([c, d])
-         
-        # Empty Jug2
-        q.append([a, 0])
-         
-        # Empty Jug1
-        q.append([0, b])
- 
-    # No, solution exists if ans=0
-    if (not isSolvable):
-        print ("No solution")
- 
-# Driver code
-if __name__ == '__main__':
-     
-    Jug1, Jug2, target = 4, 3, 2
-    print("Path from initial state "
-          "to solution state ::")
-     
-    BFS(Jug1, Jug2, target)
+class Node():
+    def __init__(self, state, capacity ):
+        self.state = state
+        self.capacity = capacity
+
+    def generate_child(self):
+        A, B = self.state[0], self.state[1]
+        ACap, BCap = self.capacity[0], self.capacity[1]
+
+        children = []
+        # fill all A jug 
+        children.append((ACap, B))
+
+        # fill all B jug
+        children.append((A, BCap))
+
+        # empty jug A
+        children.append((0, B))
+
+        # empty jug B
+        children.append((A, 0))
+
+        # fill jug A by emptying jug B
+        if A + B <= ACap:
+            children.append((A+B, 0))
+        
+        # fill jug B by emptying jug A
+        if A + B <= BCap:
+            children.append((0, A+B))
+        
+        # Pour some water from B jug to fill A jug
+        if B-(ACap-A) <= BCap and B-(ACap-A) >= 0:
+            children.append((A, B-(ACap-A)))
+
+        # Pour some water from A jug to fill B jug
+        if A-(BCap-B) <= ACap and A-(BCap-B) >= 0:
+            children.append((A-(BCap-B), B))
+
+        return children
+
+
+class waterJugDFS():
+    def __init__(self, capacity, start, target):
+        self.capacity = capacity
+        self.start = start
+        self.target = target
+        self.closed = set()
+        self.open = deque()
+        self.path = []
+    
+    def process(self):
+        # create start node and add it to open list
+        start_state = Node(self.start, capacity)
+        self.open.append(start_state)
+
+        # start traversing all states
+        while len(self.open) > 0:
+
+            cur = self.open.popleft()
+            self.path.append(cur.state)
+
+            # if goal state found and print the state and break the loop
+            if cur.state[0] == self.target or cur.state[1] == self.target:
+                if (cur.state[0] == target):
+                    if (cur.state[1] != 0): 
+                        self.path.append([cur.state[0], 0])
+                    elif (cur.state[0] != 0): 
+                        self.path.append([0, cur.state[1]])
+                for i in range(len(self.path)):
+                    print("(", self.path[i][0], ",", self.path[i][1], ")")
+                break
+
+            self.closed.add(cur.state)
+            # generate all the children
+            for child in cur.generate_child():
+                if child not in self.closed:
+                    self.open.append(Node(child, capacity))
+
+if __name__ == "__main__":
+    capacity = (3, 4) 
+    start = (0, 0)
+    target = 2
+    puz = waterJugDFS(capacity, start, target)
+    puz.process()
