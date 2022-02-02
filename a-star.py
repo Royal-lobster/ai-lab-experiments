@@ -73,6 +73,6 @@ if __name__ == "__main__":
              [2, 0, 2, 9],
              [9, 2, 0, 2],
              [4, 9, 2, 0]]
-    heuristics = [9, 2, 0, 2]
+    heuristics = [9, 2, 0, 2] #estimate from that vertex till goal
     algo = aStarSearch(graph, heuristics, 0, 2)
     algo.process()
