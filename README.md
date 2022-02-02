@@ -1,7 +1,7 @@
 # ai-lab-experiments
 
 Syllabus Progress
-- [x] Temperature Convertion
+- [x] Temperature Conversion
 - [x] Factorial
 - [x] Fibonacci
 - [x] Tower of Hanoi
