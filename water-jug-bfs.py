@@ -40,7 +40,7 @@ class Node():
         return children
 
 
-class waterJugDFS():
+class waterJugBFS():
     def __init__(self, capacity, start, target):
         self.capacity = capacity
         self.start = start
@@ -81,5 +81,5 @@ if __name__ == "__main__":
     capacity = (3, 4) 
     start = (0, 0)
     target = 2
-    puz = waterJugDFS(capacity, start, target)
+    puz = waterJugBFS(capacity, start, target)
     puz.process()
