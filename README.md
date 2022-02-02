@@ -5,7 +5,7 @@ Syllabus Progress
 - [x] N Queen
 - [x] Tic Tac Toe
 - [x] Traveling Sales Man
-- [ ] A Star
+- [x] A Star
 - [ ] Hill Climbing
 - [ ] Water Jub BFS
 - [ ] Water Jug DFS 
