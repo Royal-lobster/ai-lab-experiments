@@ -13,5 +13,5 @@ Syllabus Progress
 - [x] Traveling Sales Man
 - [x] A Star
 - [x] Hill Climbing
-- [ ] Water Jub BFS
-- [ ] Water Jug DFS 
+- [x] Water Jub BFS
+- [x] Water Jug DFS 
